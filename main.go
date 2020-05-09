@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -46,31 +47,23 @@ func parseClaims(tokenString string) (*MyCustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("AllYourBase"), nil
 	})
-
-	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
-		return claims, nil
-	} else {
-		return nil, err
+	if err != nil {
+		panic(err)
 	}
-}
 
-func ExampleParse_errorChecking(tokenString string) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("AllYourBase"), nil
-	})
-
-	fmt.Printf("%v", token.Header)
 	if token.Valid {
-		fmt.Println("You look nice today")
+		claims := token.Claims.(*MyCustomClaims)
+		return claims, nil
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
-		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-			fmt.Println("That's not even a token")
-		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
-			fmt.Println("Timing is everything")
+		if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			err = errors.New("Token expired")
+			return nil, err
 		} else {
-			fmt.Println("Couldn't handle this token:", err)
+			err = errors.New("Invalid token")
+			return nil, err
 		}
 	} else {
-		fmt.Println("Couldn't handle this token:", err)
+		err = errors.New("Invalid token")
+		return nil, err
 	}
 }
