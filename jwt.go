@@ -7,18 +7,47 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+type JwtPairs struct {
+	access  string
+	refresh string
+}
+
+func GenTwoPairs(username string) (*JwtPairs, error) {
+	accessToken, err := GetToken(username)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := GenRefresh()
+	if err != nil {
+		return nil, err
+	}
+	pairs := JwtPairs{
+		access:  accessToken,
+		refresh: refreshToken,
+	}
+	return &pairs, nil
+}
+
 func GetToken(username string) (string, error) {
-	now := time.Now()
 	claims := UserClaims{
 		username,
 		jwt.StandardClaims{
-			ExpiresAt: now.Unix() + 300,
-			Issuer:    "test",
+			ExpiresAt: time.Now().Add(time.Minute * accessExpireTime).Unix(),
+			Issuer:    issuer,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(signingKey)
+}
+
+func GenRefresh() (string, error) {
+	refreshToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := refreshToken.Claims.(jwt.MapClaims)
+	rtClaims["exp"] = time.Now().Add(time.Hour * 24 * refreshExpireTime).Unix()
+	rt, err := refreshToken.SignedString(signingKey)
+	return rt, err
 }
 
 func getParsedClaim(token string) (*jwt.Token, error) {

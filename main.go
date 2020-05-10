@@ -13,14 +13,15 @@ type UserClaims struct {
 
 func main() {
 	Initialize()
-	token, err := GetToken("salarmgh")
+	pairs, err := GenTwoPairs("salarmgh")
 	if err != nil {
 		panic(err)
 	}
 
-	claim, err := GetClaim(token)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(claim.ExpiresAt)
+	//claim, err := GetClaim(token)
+	//if err != nil {
+	//	panic(err)
+	//}
+	fmt.Println(pairs.access)
+	fmt.Println(pairs.refresh)
 }
