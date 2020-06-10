@@ -1,4 +1,4 @@
-package main
+package goaasp
 
 import "time"
 
@@ -8,7 +8,8 @@ var refreshExpireTime time.Duration
 var issuer string
 
 func Initialize() {
-	signingKey = []byte("AllYourBase")
+	signingKey = []byte("secret")
+	issuer = "digiops"
 	accessExpireTime = 15
 	refreshExpireTime = 30
 }
