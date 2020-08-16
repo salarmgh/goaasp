@@ -101,6 +101,9 @@ func GetClaim(token string) (*UserClaims, error) {
 
 func GetUsername(token string) (string, error) {
 	parsedToken, err := getParsedClaim(token)
+	if err != nil {
+		return "", err
+	}
 
 	claims := parsedToken.Claims.(*UserClaims)
 	return claims.Username, nil
