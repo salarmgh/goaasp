@@ -2,6 +2,7 @@ package goaasp
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -102,7 +103,7 @@ func GetClaim(token string) (*UserClaims, error) {
 func GetUsername(token string) (string, error) {
 	parsedToken, err := getParsedClaim(token)
 	if err != nil {
-		return "", err
+		log.Println(err)
 	}
 
 	claims := parsedToken.Claims.(*UserClaims)
